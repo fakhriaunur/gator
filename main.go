@@ -12,6 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	fmt.Printf("Read Config:\n%+v\n", cfg)
 
 	err = cfg.SetUser("pahri")
 	if err != nil {
@@ -23,6 +24,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Println(cfg.DbURL)
-	fmt.Println(cfg.CurrentUserName)
+	// fmt.Println(cfg.DbURL)
+	// fmt.Println(cfg.CurrentUserName)
+	fmt.Printf("Read Config Again:\n%+v\n", cfg)
 }

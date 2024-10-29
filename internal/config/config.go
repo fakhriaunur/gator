@@ -13,24 +13,26 @@ type Config struct {
 	CurrentUserName string `json:"current_user_name"`
 }
 
-func Read() (*Config, error) {
+func Read() (Config, error) {
 	configFilePath, err := getConfigFilePath()
 	if err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
-	dat, err := os.ReadFile(configFilePath)
+	file, err := os.Open(configFilePath)
 	if err != nil {
-		return nil, err
+		return Config{}, err
 	}
+	defer file.Close()
 
+	decoder := json.NewDecoder(file)
 	cfg := Config{}
-	err = json.Unmarshal(dat, &cfg)
+	err = decoder.Decode(&cfg)
 	if err != nil {
-		return nil, err
+		return Config{}, nil
 	}
 
-	return &cfg, nil
+	return cfg, nil
 }
 
 func (cfg *Config) SetUser(username string) error {
@@ -51,15 +53,22 @@ func getConfigFilePath() (string, error) {
 }
 
 func write(cfg Config) error {
-	dat, err := json.Marshal(cfg)
-	if err != nil {
-		return err
-	}
-
 	configFilePath, err := getConfigFilePath()
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(configFilePath, dat, 0644)
+	file, err := os.Create(configFilePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(cfg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
