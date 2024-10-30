@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -21,10 +20,7 @@ func handlerLogin(s *state, cmd command) error {
 
 	_, err := s.db.GetUser(ctx, username)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("user does not exist")
-		}
-		return fmt.Errorf("unable to check existing user: %w", err)
+		return fmt.Errorf("couldn't find user: %w", err)
 	}
 
 	if err := s.cfg.SetUser(username); err != nil {
@@ -44,13 +40,13 @@ func handlerRegister(s *state, cmd command) error {
 	ctx := context.Background()
 	username := cmd.args[0]
 
-	existingUser, err := s.db.GetUser(ctx, username)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("unable to check existing user: %w", err)
-	}
-	if existingUser.Name != "" {
-		return errors.New("username is already registered")
-	}
+	// existingUser, err := s.db.GetUser(ctx, username)
+	// if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	// 	return fmt.Errorf("unable to check existing user: %w", err)
+	// }
+	// if existingUser.Name != "" {
+	// 	return errors.New("username is already registered")
+	// }
 
 	userParams := database.CreateUserParams{
 		ID:        uuid.New(),
@@ -61,14 +57,20 @@ func handlerRegister(s *state, cmd command) error {
 
 	user, err := s.db.CreateUser(ctx, userParams)
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't create user: %w", err)
 	}
 
 	if err := s.cfg.SetUser(user.Name); err != nil {
-		return err
+		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
 	fmt.Printf("Username: %s has been registered!\n", user.Name)
+	printUser(user)
 
 	return nil
+}
+
+func printUser(name database.User) {
+	fmt.Printf("ID:\t%v\n", name.ID)
+	fmt.Printf("Name:\t%v\n", name.Name)
 }
