@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/fakhriaunur/gator/internal/config"
@@ -10,18 +11,16 @@ import (
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 	fmt.Printf("Read Config:\n%+v\n", cfg)
 
-	state := NewState(&cfg)
-	commands := NewCommands()
-	commands.register("login", handlerLogin)
+	programState := NewState(&cfg)
+	cmds := NewCommands()
+	cmds.register("login", handlerLogin)
 
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "not enough arguments\n")
-		os.Exit(1)
+		log.Fatalln("not enough arguments")
 	}
 
 	cmd := command{
@@ -29,9 +28,8 @@ func main() {
 		args: os.Args[2:],
 	}
 
-	if err := commands.run(state, cmd); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
+	if err := cmds.run(programState, cmd); err != nil {
+		log.Fatalln(err)
 	}
 
 	fmt.Printf("Read Config Again:\n%+v\n", cfg)
