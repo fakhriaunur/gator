@@ -40,14 +40,6 @@ func handlerRegister(s *state, cmd command) error {
 	ctx := context.Background()
 	username := cmd.args[0]
 
-	// existingUser, err := s.db.GetUser(ctx, username)
-	// if err != nil && !errors.Is(err, sql.ErrNoRows) {
-	// 	return fmt.Errorf("unable to check existing user: %w", err)
-	// }
-	// if existingUser.Name != "" {
-	// 	return errors.New("username is already registered")
-	// }
-
 	userParams := database.CreateUserParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
@@ -67,6 +59,17 @@ func handlerRegister(s *state, cmd command) error {
 	fmt.Printf("Username: %s has been registered!\n", user.Name)
 	printUser(user)
 
+	return nil
+}
+
+func handlerReset(s *state, _ command) error {
+	ctx := context.Background()
+
+	if err := s.db.DeleteAllUsers(ctx); err != nil {
+		return fmt.Errorf("couldn't reset the user database: %w", err)
+	}
+
+	fmt.Println("successfully reset the user database")
 	return nil
 }
 
