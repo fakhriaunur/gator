@@ -73,6 +73,25 @@ func handlerReset(s *state, _ command) error {
 	return nil
 }
 
+func handlerUsers(s *state, cmd command) error {
+	ctx := context.Background()
+
+	users, err := s.db.GetAllUsers(ctx)
+	if err != nil {
+		return fmt.Errorf("couldn't retrieve all users: %w", err)
+	}
+
+	for _, user := range users {
+		if s.cfg.CurrentUserName == user.Name {
+			fmt.Printf("* %v (current)\n", user.Name)
+		} else {
+			fmt.Printf("* %v\n", user.Name)
+		}
+	}
+
+	return nil
+}
+
 func printUser(name database.User) {
 	fmt.Printf("ID:\t%v\n", name.ID)
 	fmt.Printf("Name:\t%v\n", name.Name)
