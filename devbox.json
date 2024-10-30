@@ -2,8 +2,7 @@
   "packages": [
     "go@1.23.1",
     "postgresql@16.4",
-    "goose@3.22.1",
-    "sqlc@1.27.0"
+    "glibcLocales@2.40-36"
   ],
   "shell": {
     "init_hook": [
@@ -11,11 +10,11 @@
       "export \"GOROOT=$(go env GOROOT)\""
     ],
     "scripts": {
-      "install": "go get ./...",
+      "install":   "go get ./...",
       "build_run": "go build -o gator ./cmd/main && ./gator",
-      "run": "go run .",
-      "test": "go test ./...",
-      "tidy": "go mod tidy"
+      "run":       "go run .",
+      "test":      "go test ./...",
+      "tidy":      "go mod tidy"
     }
   }
 }
