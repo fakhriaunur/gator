@@ -66,7 +66,7 @@ func handlerReset(s *state, _ command) error {
 	ctx := context.Background()
 
 	if err := s.db.DeleteAllUsers(ctx); err != nil {
-		return fmt.Errorf("couldn't reset the user database: %w", err)
+		return fmt.Errorf("couldn't delete all users: %w", err)
 	}
 
 	fmt.Println("successfully reset the user database")
