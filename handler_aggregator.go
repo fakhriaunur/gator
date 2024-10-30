@@ -14,7 +14,7 @@ func handlerRss(s *state, cmd command) error {
 		return err
 	}
 
-	fmt.Println(rssFeed)
+	fmt.Printf("Feed: %+v\n", rssFeed)
 
 	return nil
 }
