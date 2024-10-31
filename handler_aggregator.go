@@ -62,10 +62,13 @@ func handlerFeed(s *state, cmd command) error {
 		FeedID:    feed.ID,
 	}
 
-	_, err = s.db.CreateFeedFollow(ctx, feedFollowParams)
+	feedFollow, err := s.db.CreateFeedFollow(ctx, feedFollowParams)
 	if err != nil {
 		return fmt.Errorf("couldn't create a feed follow: %w", err)
 	}
+
+	fmt.Println("Feed followed successfully!")
+	printFeedFollow(feedFollow.UserName, feedFollow.FeedName)
 
 	return nil
 }
@@ -76,6 +79,11 @@ func handlerListAllFeeds(s *state, cmd command) error {
 	feeds, err := s.db.GetAllFeeds(ctx)
 	if err != nil {
 		return fmt.Errorf("couldn't get all feeds: %w", err)
+	}
+
+	if len(feeds) == 0 {
+		fmt.Println("No feeds found")
+		return nil
 	}
 
 	for i, feed := range feeds {

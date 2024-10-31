@@ -57,9 +57,19 @@ func handlerFollowing(s *state, cmd command) error {
 		return fmt.Errorf("couldn't get feed follows: %w", err)
 	}
 
-	for i, feed := range feedFollows {
-		fmt.Printf("Feed #%d: %v\n", i, feed.FeedName)
+	if len(feedFollows) == 0 {
+		fmt.Println("No feed follows found")
+		return nil
+	}
+
+	for i, ff := range feedFollows {
+		fmt.Printf("Feed Follows #%d: %v\n", i, ff.FeedName)
 	}
 
 	return nil
+}
+
+func printFeedFollow(userName, feedName string) {
+	fmt.Printf("* User:\t%v\n", userName)
+	fmt.Printf("* Feed:\t%v\n", feedName)
 }
