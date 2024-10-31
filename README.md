@@ -1,1 +1,1 @@
-# A Blog Aggregaor in Go
+# A Blog Aggregator in Go
