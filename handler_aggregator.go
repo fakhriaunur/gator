@@ -56,3 +56,18 @@ func handlerFeed(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerListAllFeeds(s *state, cmd command) error {
+	ctx := context.Background()
+
+	feeds, err := s.db.GetAllFeeds(ctx)
+	if err != nil {
+		return fmt.Errorf("couldn't get all feeds: %w", err)
+	}
+
+	for i, feed := range feeds {
+		fmt.Printf("Feed #%d: %+v\n", i, feed)
+	}
+
+	return nil
+}

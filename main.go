@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -16,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Printf("Read Config:\n%+v\n", cfg)
+	// fmt.Printf("Read Config:\n%+v\n", cfg)
 
 	db, err := sql.Open("postgres", cfg.DbURL)
 	if err != nil {
@@ -34,6 +33,7 @@ func main() {
 	cmds.register("users", handlerListAllUsers)
 	cmds.register("agg", handlerRss)
 	cmds.register("addfeed", handlerFeed)
+	cmds.register("feeds", handlerListAllFeeds)
 
 	if len(os.Args) < 2 {
 		log.Fatalln("not enough arguments")
@@ -48,5 +48,5 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Printf("Read Config Again:\n%+v\n", cfg)
+	// fmt.Printf("Read Config Again:\n%+v\n", cfg)
 }
