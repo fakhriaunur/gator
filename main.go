@@ -33,6 +33,7 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerListAllUsers)
 	cmds.register("agg", handlerRss)
+	cmds.register("addfeed", handlerFeed)
 
 	if len(os.Args) < 2 {
 		log.Fatalln("not enough arguments")
