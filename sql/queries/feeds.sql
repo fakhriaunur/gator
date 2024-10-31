@@ -14,6 +14,9 @@ VALUES (
 RETURNING *;
 
 -- name: GetAllFeeds :many
+SELECT * FROM feeds;
+
+-- name: GetAllFeedsInnerJoinUsers :many
 SELECT feeds.id, feeds.name, feeds.url,
 users.name AS creator
 FROM feeds

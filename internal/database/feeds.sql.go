@@ -59,6 +59,40 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 }
 
 const getAllFeeds = `-- name: GetAllFeeds :many
+SELECT id, created_at, updated_at, name, url, user_id FROM feeds
+`
+
+func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
+	rows, err := q.db.QueryContext(ctx, getAllFeeds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Feed
+	for rows.Next() {
+		var i Feed
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Name,
+			&i.Url,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllFeedsInnerJoinUsers = `-- name: GetAllFeedsInnerJoinUsers :many
 SELECT feeds.id, feeds.name, feeds.url,
 users.name AS creator
 FROM feeds
@@ -66,22 +100,22 @@ INNER JOIN users
 ON feeds.user_id = users.id
 `
 
-type GetAllFeedsRow struct {
+type GetAllFeedsInnerJoinUsersRow struct {
 	ID      uuid.UUID
 	Name    string
 	Url     string
 	Creator string
 }
 
-func (q *Queries) GetAllFeeds(ctx context.Context) ([]GetAllFeedsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAllFeeds)
+func (q *Queries) GetAllFeedsInnerJoinUsers(ctx context.Context) ([]GetAllFeedsInnerJoinUsersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllFeedsInnerJoinUsers)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetAllFeedsRow
+	var items []GetAllFeedsInnerJoinUsersRow
 	for rows.Next() {
-		var i GetAllFeedsRow
+		var i GetAllFeedsInnerJoinUsersRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
