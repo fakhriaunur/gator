@@ -34,6 +34,8 @@ func main() {
 	cmds.register("agg", handlerRss)
 	cmds.register("addfeed", handlerFeed)
 	cmds.register("feeds", handlerListAllFeeds)
+	cmds.register("follow", handlerFollow)
+	cmds.register("following", handlerFollowing)
 
 	if len(os.Args) < 2 {
 		log.Fatalln("not enough arguments")
