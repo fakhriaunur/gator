@@ -9,19 +9,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("expecting an argument <url>")
 	}
 
 	ctx := context.Background()
 	url := cmd.args[0]
-
-	currentUserName := s.cfg.CurrentUserName
-	currentUser, err := s.db.GetUser(ctx, currentUserName)
-	if err != nil {
-		return err
-	}
 
 	currentFeed, err := s.db.GetFeedByURL(ctx, url)
 	if err != nil {
@@ -32,7 +26,7 @@ func handlerFollow(s *state, cmd command) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 		FeedID:    currentFeed.ID,
 	}
 
@@ -46,13 +40,11 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 
 	ctx := context.Background()
 
-	currentUserName := s.cfg.CurrentUserName
-
-	feedFollows, err := s.db.GetFeedFollowsForUser(ctx, currentUserName)
+	feedFollows, err := s.db.GetFeedFollowsForUser(ctx, user.Name)
 	if err != nil {
 		return fmt.Errorf("couldn't get feed follows: %w", err)
 	}

@@ -23,7 +23,7 @@ func handlerRss(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFeed(s *state, cmd command) error {
+func handlerFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("expecting <name> <url>")
 	}
@@ -31,12 +31,6 @@ func handlerFeed(s *state, cmd command) error {
 	ctx := context.Background()
 	name := cmd.args[0]
 	url := cmd.args[1]
-
-	userName := s.cfg.CurrentUserName
-	user, err := s.db.GetUser(ctx, userName)
-	if err != nil {
-		return err
-	}
 
 	feedParams := database.CreateFeedParams{
 		ID:        uuid.New(),
