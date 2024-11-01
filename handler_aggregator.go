@@ -3,22 +3,74 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/fakhriaunur/gator/internal/database"
 	"github.com/google/uuid"
 )
 
-func handlerRss(s *state, cmd command) error {
-	url := "https://www.wagslane.dev/index.xml"
-	ctx := context.Background()
+// func handlerAggOld(s *state, cmd command) error {
+// 	url := "https://www.wagslane.dev/index.xml"
+// 	ctx := context.Background()
 
-	rssFeed, err := fetchFeed(ctx, url)
-	if err != nil {
-		return err
+// 	rssFeed, err := fetchFeed(ctx, url)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	fmt.Printf("Feed: %+v\n", rssFeed)
+
+// 	return nil
+// }
+
+func handlerAgg(s *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("expecting an argument: <time_duration>")
 	}
 
-	fmt.Printf("Feed: %+v\n", rssFeed)
+	timeBetweenReqsStr := cmd.args[0]
+	timeBetweenReqs, err := time.ParseDuration(timeBetweenReqsStr)
+	if err != nil {
+		return fmt.Errorf("couldn't parse the time duration: %w", err)
+	}
+
+	fmt.Printf("Collecting feeds every %v\n", timeBetweenReqs)
+
+	ticker := time.NewTicker(timeBetweenReqs)
+	defer ticker.Stop()
+
+	for ; ; <-ticker.C {
+		ctx := context.Background()
+		if err := scrapeFeeds(ctx, s); err != nil {
+			return fmt.Errorf("couldn't scrape feeds: %w", err)
+		}
+	}
+}
+
+func scrapeFeeds(ctx context.Context, s *state) error {
+	nextFeedToFetch, err := s.db.GetNextFeedToFetch(ctx)
+	if err != nil {
+		return fmt.Errorf("couldn't fetch the next feed, %w", err)
+	}
+	return scrapeFeed(ctx, s, nextFeedToFetch)
+}
+
+func scrapeFeed(ctx context.Context, s *state, feed database.Feed) error {
+	_, err := s.db.MarkFeedFetched(ctx, feed.ID)
+	if err != nil {
+		return fmt.Errorf("couldn't mark the fetched feed, %w", err)
+	}
+
+	feedData, err := fetchFeed(ctx, feed.Url)
+	if err != nil {
+		return fmt.Errorf("couldn't get the feed by url: %w", err)
+	}
+
+	for _, item := range feedData.Channel.Item {
+		fmt.Printf("Found post: %s\n", item.Title)
+	}
+	log.Printf("Feed %s collected, %v posts found\n", feed.Name, len(feedData.Channel.Item))
 
 	return nil
 }
@@ -96,5 +148,5 @@ func printFeed(feed database.Feed, user database.User) {
 	fmt.Printf("* ID:\t\t%v\n", feed.ID)
 	fmt.Printf("* Name:\t\t%v\n", feed.Name)
 	fmt.Printf("* URL:\t\t%v\n", feed.Url)
-	fmt.Printf("* Creator:\t%v\n", user.Name)
+	fmt.Printf("* User:\t%v\n", user.Name)
 }
