@@ -1,14 +1,16 @@
 -- +goose Up
-CREATE TABLE feeds(
+CREATE TABLE posts(
     id UUID PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    name TEXT NOT NULL,
+    title TEXT NOT NULL,
     url TEXT NOT NULL,
-    user_id UUID NOT NULL REFERENCES users (id)
+    description TEXT,
+    published_at TIMESTAMP,
+    feed_id UUID NOT NULL REFERENCES feeds (id) 
                             ON DELETE CASCADE,
-    UNIQUE(name, url)
+    UNIQUE(url)
 );
 
 -- +goose Down
-DROP TABLE feeds;
+DROP TABLE posts;
